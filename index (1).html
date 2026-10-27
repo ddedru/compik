@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Компьютерная мастерская Контур: ремонт ноутбуков и ПК, чистка, установка Windows, восстановление данных.">
+<title>Контур</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky bar, hero with a live "diagnostic report" card, services grid, price table, repair sequence, FAQ, request form. */
+:root {
+  --bg: #eef1ef;
+  --surface: #f9fbfa;
+  --fg: #12201b;
+  --muted: #55655e;
+  --line: #cfd8d3;
+  --accent: #0d5c46;
+  --accent-fg: #f4faf7;
+  --warn: #a85a00;
+  --warn-bg: #f7e6cf;
+  --ok-bg: #d3eadf;
+  --font-display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1512;
+    --surface: #151f1b;
+    --fg: #e4ece8;
+    --muted: #9aaba3;
+    --line: #26352f;
+    --accent: #4fc79c;
+    --accent-fg: #07130e;
+    --warn: #f0b25e;
+    --warn-bg: #3a2c14;
+    --ok-bg: #173126;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1512;
+  --surface: #151f1b;
+  --fg: #e4ece8;
+  --muted: #9aaba3;
+  --line: #26352f;
+  --accent: #4fc79c;
+  --accent-fg: #07130e;
+  --warn: #f0b25e;
+  --warn-bg: #3a2c14;
+  --ok-bg: #173126;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 40px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 30;
+  background: var(--bg);
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { max-width: 1080px; margin-inline: auto; }
+.mono { font-family: var(--font-mono); }
+.label { font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* header */
+header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+}
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; max-width: 1080px; margin-inline: auto; flex-wrap: wrap; }
+.logo { font-family: var(--font-display); font-weight: 700; font-size: 18px; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.logo svg { width: 26px; height: 26px; flex: none; }
+nav { display: flex; gap: 20px; font-size: 14px; flex-wrap: wrap; }
+nav a { text-decoration: none; color: var(--muted); }
+nav a:hover { color: var(--fg); }
+.tel { font-family: var(--font-mono); font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid var(--line); padding: 8px 12px; border-radius: 6px; background: var(--surface); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 600 15px var(--font-body); background: var(--accent); color: var(--accent-fg); border: 0; padding: 14px 22px; border-radius: 6px; text-decoration: none; cursor: pointer; }
+.btn:hover { filter: brightness(1.08); }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.btn.ghost:hover { border-color: var(--fg); filter: none; }
+
+/* hero */
+.hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; padding-block: 64px 72px; }
+.hero > * { min-width: 0; }
+.hero h1 { font-size: clamp(30px, 5vw, 52px); letter-spacing: -.02em; }
+.hero p.lead { margin-top: 20px; font-size: 18px; color: var(--muted); max-width: 52ch; }
+.hero .cta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; }
+.facts { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 14px; color: var(--muted); }
+.facts b { color: var(--fg); font-weight: 600; }
+
+.report { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 22px; box-shadow: 0 1px 0 var(--line), 0 18px 40px -28px rgba(0,0,0,.35); }
+.report-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px dashed var(--line); }
+.report ul { list-style: none; margin: 0; padding: 0; }
+.report li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 11px; border-bottom: 1px dashed var(--line); font-size: 15px; }
+.pill { font-family: var(--font-mono); font-size: 12px; padding: 3px 9px; border-radius: 99px; white-space: nowrap; background: var(--ok-bg); color: var(--accent); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.report-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-top: 16px; }
+.report-foot strong { font-family: var(--font-display); font-size: 22px; }
+
+/* sections */
+section { padding-block: 64px; border-top: 1px solid var(--line); }
+.sec-head { display: grid; gap: 10px; margin-bottom: 36px; max-width: 62ch; }
+.sec-head h2 { font-size: clamp(24px, 3.4vw, 34px); letter-spacing: -.01em; }
+.sec-head p { color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.svc { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.svc svg { width: 30px; height: 30px; color: var(--accent); }
+.svc h3 { font-size: 17px; }
+.svc p { color: var(--muted); font-size: 15px; }
+.svc .from { margin-top: auto; padding-top: 8px; font-family: var(--font-mono); font-size: 13px; color: var(--fg); }
+
+/* chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { font: 500 14px var(--font-body); padding: 9px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+
+/* prices */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; min-width: 480px; }
+th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 15px; vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: 0; }
+td.price { font-family: var(--font-mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
+td small { display: block; color: var(--muted); font-size: 13px; }
+.note { margin-top: 14px; font-size: 14px; color: var(--muted); }
+
+/* steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; counter-reset: s; }
+.steps li { counter-increment: s; border-top: 3px solid var(--accent); padding-top: 16px; display: grid; gap: 8px; align-content: start; }
+.steps li::before { content: "Шаг " counter(s); font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.steps h3 { font-size: 16px; }
+.steps p { color: var(--muted); font-size: 15px; }
+
+/* guarantees */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.two > * { min-width: 0; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 24px; display: grid; gap: 10px; align-content: start; }
+.box h3 { font-size: 18px; }
+.box p, .box li { color: var(--muted); font-size: 15px; }
+.box ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+
+/* faq */
+details { border-bottom: 1px solid var(--line); padding-block: 4px; }
+details:first-of-type { border-top: 1px solid var(--line); }
+summary { cursor: pointer; padding-block: 14px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font-family: var(--font-mono); color: var(--accent); }
+details[open] summary::after { content: "−"; }
+details p { color: var(--muted); padding-bottom: 16px; max-width: 70ch; }
+
+/* form */
+.contact { display: grid; grid-template-columns: .9fr 1.1fr; gap: 32px; align-items: start; }
+.contact > * { min-width: 0; }
+form { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 24px; display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 14px; font-weight: 600; }
+input, select, textarea { font: 400 16px var(--font-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; width: 100%; }
+textarea { min-height: 96px; resize: vertical; }
+.err { color: var(--warn); font-size: 13px; min-height: 1em; }
+.result { background: var(--ok-bg); border-radius: 6px; padding: 16px; display: grid; gap: 10px; }
+.result pre { margin: 0; white-space: pre-wrap; font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+.info { display: grid; gap: 18px; }
+.info dl { margin: 0; display: grid; gap: 14px; }
+.info dt { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.info dd { margin: 2px 0 0; font-size: 17px; overflow-wrap: anywhere; }
+
+footer { border-top: 1px solid var(--line); padding-top: 24px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; gap: 36px; padding-block: 40px 48px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .contact, .two { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .grid, .steps { grid-template-columns: 1fr; }
+  nav { display: none; }
+  section { padding-block: 48px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a class="logo" href="#top" aria-label="Контур, компьютерная мастерская">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)" aria-hidden="true"><rect x="8" y="8" width="16" height="16" rx="2"/><path d="M12 4v4M20 4v4M12 24v4M20 24v4M4 12h4M4 20h4M24 12h4M24 20h4"/></svg>
+      Контур
+    </a>
+    <nav aria-label="Разделы">
+      <a href="#services">Услуги</a>
+      <a href="#prices">Цены</a>
+      <a href="#process">Как работаем</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="tel" href="tel:+79000000000">+7 (900) 000-00-00</a>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <div class="hero">
+    <div>
+      <p class="label">Компьютерная мастерская</p>
+      <h1 style="margin-top:14px">Починим компьютер и назовём цену до начала работы</h1>
+      <p class="lead">Ремонт ноутбуков и ПК, чистка от пыли, замена термопасты, установка Windows, возврат данных с дисков. Диагностика бесплатная, если вы остаётесь на ремонт.</p>
+      <div class="cta">
+        <a class="btn" href="#request">Оставить заявку</a>
+        <a class="btn ghost" href="#prices">Смотреть цены</a>
+      </div>
+      <div class="facts">
+        <span><b>1 час</b> средняя диагностика</span>
+        <span><b>90 дней</b> гарантия на работы</span>
+        <span><b>0 ₽</b> если не вышло починить</span>
+      </div>
+    </div>
+
+    <aside class="report" aria-label="Пример акта диагностики">
+      <div class="report-head">
+        <span class="label">Акт диагностики · пример</span>
+        <span class="mono" style="font-size:12px;color:var(--muted)">№ 0417</span>
+      </div>
+      <ul>
+        <li><span>Температура процессора под нагрузкой</span><span class="pill warn">96 °C</span></li>
+        <li><span>Система охлаждения</span><span class="pill warn">чистка</span></li>
+        <li><span>Состояние SSD (SMART)</span><span class="pill">ок</span></li>
+        <li><span>Оперативная память, тест</span><span class="pill">ок</span></li>
+        <li><span>Аккумулятор, износ</span><span class="pill warn">41 %</span></li>
+      </ul>
+      <div class="report-foot">
+        <span style="color:var(--muted);font-size:14px">Чистка и новая термопаста</span>
+        <strong>от 1 500 ₽</strong>
+      </div>
+    </aside>
+  </div>
+
+  <section id="services">
+    <div class="sec-head">
+      <p class="label">Услуги</p>
+      <h2>С чем к нам приходят чаще всего</h2>
+      <p>Если вашей поломки нет в списке, всё равно напишите. Посмотрим и скажем, беремся или нет.</p>
+    </div>
+    <div class="grid">
+      <article class="svc">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="24" height="15" rx="2"/><path d="M2 26h28"/></svg>
+        <h3>Ремонт ноутбуков</h3>
+        <p>Не включается, залит жидкостью, разбит экран, сломан разъём питания или шарнир.</p>
+        <span class="from">от 1 200 ₽</span>
+      </article>
+      <article class="svc">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="16" cy="16" r="3"/><path d="M16 13c0-5 2-8 5-8s3 5-1 8M19 18c4 3 6 7 4 9s-6-1-7-6M13 18c-4 3-8 3-9 0s4-5 9-3"/></svg>
+        <h3>Чистка и охлаждение</h3>
+        <p>Перегрев, шум вентиляторов, самопроизвольные отключения. Меняем термопасту и термопрокладки.</p>
+        <span class="from">от 1 500 ₽</span>
+      </article>
+      <article class="svc">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="24" height="22" rx="2"/><path d="M4 12h24M10 8h.01M14 8h.01"/></svg>
+        <h3>Windows и программы</h3>
+        <p>Установка и переустановка системы, драйверы, удаление вирусов, настройка программ.</p>
+        <span class="from">от 1 000 ₽</span>
+      </article>
+      <article class="svc">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="16" cy="8" rx="10" ry="4"/><path d="M6 8v8c0 2.2 4.5 4 10 4s10-1.800 10-4V8M6 16v8c0 2.200 4.500 4 10 4s10-1.800 10-4v-8"/></svg>
+        <h3>Восстановление данных</h3>
+        <p>Диск не определяется, файлы удалены или отформатированы. Сначала оцениваем шансы, потом работаем.</p>
+        <span class="from">от 2 500 ₽</span>
+      </article>
+      <article class="svc">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22l7-7 5 5 12-12"/><path d="M20 8h8v8"/></svg>
+        <h3>Апгрейд</h3>
+        <p>SSD вместо старого диска, больше памяти, новая видеокарта. Подберём совместимые детали.</p>
+        <span class="from">от 800 ₽ за работу</span>
+      </article>
+      <article class="svc">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="22" height="24" rx="2"/><path d="M10 10h12M10 16h12M10 22h6"/></svg>
+        <h3>Сборка компьютера</h3>
+        <p>Подбор комплектующих под задачи и бюджет, сборка, прошивка, тесты под нагрузкой.</p>
+        <span class="from">от 3 000 ₽</span>
+      </article>
+    </div>
+  </section>
+
+  <section id="prices">
+    <div class="sec-head">
+      <p class="label">Прайс</p>
+      <h2>Цены на работу без скрытых доплат</h2>
+      <p>Детали оплачиваются отдельно. Точную сумму называем после диагностики и ничего не делаем без вашего согласия.</p>
+    </div>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Таблица цен">
+      <table>
+        <thead><tr><th>Работа</th><th>Срок</th><th>Цена</th></tr></thead>
+        <tbody>
+          <tr><td>Диагностика<small>бесплатно при ремонте у нас</small></td><td>до 1 часа</td><td class="price">500 ₽</td></tr>
+          <tr><td>Чистка ноутбука с заменой термопасты</td><td>1 день</td><td class="price">от 1 500 ₽</td></tr>
+          <tr><td>Чистка системного блока</td><td>2 часа</td><td class="price">от 1 000 ₽</td></tr>
+          <tr><td>Установка Windows с драйверами</td><td>2–3 часа</td><td class="price">от 1 000 ₽</td></tr>
+          <tr><td>Лечение от вирусов</td><td>до 1 дня</td><td class="price">от 1 200 ₽</td></tr>
+          <tr><td>Замена матрицы ноутбука</td><td>1–2 дня</td><td class="price">от 1 800 ₽</td></tr>
+          <tr><td>Замена SSD с переносом системы</td><td>3–4 часа</td><td class="price">от 1 500 ₽</td></tr>
+          <tr><td>Ремонт материнской платы<small>пайка, замена контроллеров</small></td><td>от 3 дней</td><td class="price">от 3 500 ₽</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Цены в примере условные. Перед запуском сайта замените их на свои.</p>
+  </section>
+
+  <section id="process">
+    <div class="sec-head">
+      <p class="label">Как работаем</p>
+      <h2>Четыре шага от звонка до готового компьютера</h2>
+    </div>
+    <ol class="steps">
+      <li><h3>Заявка</h3><p>Опишите проблему по телефону или в форме ниже. Скажем, что привезти и сколько это займёт.</p></li>
+      <li><h3>Диагностика</h3><p>Проверяем железо и систему, находим причину. Называем итоговую цену и срок.</p></li>
+      <li><h3>Ремонт</h3><p>Приступаем только после вашего согласия. Если находим что-то новое, сначала звоним.</p></li>
+      <li><h3>Выдача</h3><p>Показываем, что сделано, проверяем вместе. Выдаём акт и гарантийный талон.</p></li>
+    </ol>
+  </section>
+
+  <section id="guarantee">
+    <div class="two">
+      <div class="box">
+        <h3>Гарантия на работу и детали</h3>
+        <p>На выполненный ремонт даём 90 дней, на новые комплектующие срок производителя. Гарантия записана в акте.</p>
+        <ul>
+          <li>Бесплатно переделаем, если поломка вернулась по той же причине.</li>
+          <li>Старые детали возвращаем по вашему желанию.</li>
+          <li>Не взялись или не вышло починить, платите только за диагностику.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Ваши данные остаются вашими</h3>
+        <p>Файлы мы не копируем и не открываем без необходимости. Перед переустановкой системы предупреждаем и сохраняем документы, если вы просите.</p>
+        <ul>
+          <li>Пароли от системы нужны только для проверки работы.</li>
+          <li>Можно присутствовать при ремонте.</li>
+          <li>Работаем по акту приёма и выдачи.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="sec-head">
+      <p class="label">Вопросы</p>
+      <h2>Частые вопросы</h2>
+    </div>
+    <details>
+      <summary>Сколько стоит диагностика?</summary>
+      <p>500 ₽. Если вы соглашаетесь на ремонт у нас, эта сумма в стоимость не входит. Если ремонт не нужен или вы отказались, платите только за диагностику.</p>
+    </details>
+    <details>
+      <summary>Можно ли оставить ноутбук без зарядки?</summary>
+      <p>Зарядное устройство лучше привезти. Для диагностики оно нужно почти всегда, а если окажется, что неисправен именно блок питания, мы это проверим сразу.</p>
+    </details>
+    <details>
+      <summary>Сколько ждать ремонт?</summary>
+      <p>Чистку и установку системы делаем в день обращения или на следующий. Если нужна деталь под заказ, срок называем после диагностики.</p>
+    </details>
+    <details>
+      <summary>Что с моими файлами при переустановке Windows?</summary>
+      <p>Перед переустановкой уточняем, что нужно сохранить, и переносим документы и фото на внешний носитель. Без вашего согласия диск не форматируем.</p>
+    </details>
+    <details>
+      <summary>Вы выезжаете на дом?</summary>
+      <p>Да, для настройки, установки системы и несложных работ. Стоимость выезда зависит от района и называется при заявке.</p>
+    </details>
+  </section>
+
+  <section id="request">
+    <div class="contact">
+      <div class="info">
+        <div class="sec-head" style="margin:0">
+          <p class="label">Заявка</p>
+          <h2>Расскажите, что случилось</h2>
+          <p>Выберите симптом или опишите проблему своими словами. Мы перезвоним и подскажем, что делать дальше.</p>
+        </div>
+        <dl>
+          <div><dt>Телефон</dt><dd class="mono">+7 (900) 000-00-00</dd></div>
+          <div><dt>Адрес</dt><dd>ул. Примерная, 10, офис 5</dd></div>
+          <div><dt>Часы работы</dt><dd>Пн–Сб 10:00–19:00, воскресенье выходной</dd></div>
+        </dl>
+        <p class="note">Контакты в примере условные. Замените их на настоящие.</p>
+      </div>
+
+      <form id="req" novalidate>
+        <div>
+          <p class="label" style="margin-bottom:10px">Что случилось</p>
+          <div class="chips" id="chips" role="group" aria-label="Тип проблемы">
+            <button class="chip" type="button" aria-pressed="false">Не включается</button>
+            <button class="chip" type="button" aria-pressed="false">Греется и шумит</button>
+            <button class="chip" type="button" aria-pressed="false">Тормозит</button>
+            <button class="chip" type="button" aria-pressed="false">Нужна Windows</button>
+            <button class="chip" type="button" aria-pressed="false">Пропали файлы</button>
+            <button class="chip" type="button" aria-pressed="false">Разбит экран</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="name">Имя</label>
+          <input id="name" name="name" type="text" autocomplete="name" placeholder="Как к вам обращаться">
+          <span class="err" id="e-name"></span>
+        </div>
+        <div class="field">
+          <label for="phone">Телефон</label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 900 000-00-00">
+          <span class="err" id="e-phone"></span>
+        </div>
+        <div class="field">
+          <label for="device">Устройство</label>
+          <select id="device" name="device">
+            <option>Ноутбук</option>
+            <option>Системный блок</option>
+            <option>Моноблок</option>
+            <option>Другое</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="msg">Подробности</label>
+          <textarea id="msg" name="msg" placeholder="Модель, когда началось, что уже пробовали"></textarea>
+        </div>
+        <button class="btn" type="submit">Сформировать заявку</button>
+        <div class="result" id="result" hidden>
+          <strong>Заявка готова</strong>
+          <pre id="out"></pre>
+          <p style="font-size:14px;color:var(--muted)">Отправьте этот текст по телефону или в мессенджере мастерской.</p>
+          <button class="btn ghost" type="button" id="copy">Скопировать текст</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>© Контур, компьютерная мастерская</span>
+  <span>Диагностика, ремонт, апгрейд</span>
+</footer>
+
+<script>
+(function () {
+  var chips = document.getElementById('chips');
+  var form = document.getElementById('req');
+  var msg = document.getElementById('msg');
+  var picked = [];
+
+  chips.addEventListener('click', function (e) {
+    var b = e.target.closest('.chip');
+    if (!b) return;
+    var on = b.getAttribute('aria-pressed') === 'true';
+    b.setAttribute('aria-pressed', on ? 'false' : 'true');
+    picked = Array.prototype.filter.call(chips.children, function (c) {
+      return c.getAttribute('aria-pressed') === 'true';
+    }).map(function (c) { return c.textContent; });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('name').value.trim();
+    var phone = document.getElementById('phone').value.trim();
+    var digits = phone.replace(/\D/g, '');
+    var ok = true;
+    document.getElementById('e-name').textContent = name ? '' : 'Укажите имя';
+    if (!name) ok = false;
+    document.getElementById('e-phone').textContent = digits.length >= 10 ? '' : 'Введите телефон полностью, не меньше 10 цифр';
+    if (digits.length < 10) ok = false;
+    if (!ok) return;
+
+    var lines = [
+      'Заявка в мастерскую «Контур»',
+      'Имя: ' + name,
+      'Телефон: ' + phone,
+      'Устройство: ' + document.getElementById('device').value
+    ];
+    if (picked.length) lines.push('Проблема: ' + picked.join(', '));
+    if (msg.value.trim()) lines.push('Подробности: ' + msg.value.trim());
+    document.getElementById('out').textContent = lines.join('\n');
+    document.getElementById('result').hidden = false;
+  });
+
+  document.getElementById('copy').addEventListener('click', function () {
+    var btn = this;
+    var text = document.getElementById('out').textContent;
+    function done(t) { btn.textContent = t; setTimeout(function () { btn.textContent = 'Скопировать текст'; }, 2000); }
+    try {
+      navigator.clipboard.writeText(text).then(function () { done('Скопировано'); }, fallback);
+    } catch (err) { fallback(); }
+    function fallback() {
+      var r = document.createRange();
+      r.selectNodeContents(document.getElementById('out'));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      done('Выделено, нажмите копировать');
+    }
+  });
+})();
+</script>
+</body>
+</html>
